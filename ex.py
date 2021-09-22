@@ -1,5 +1,4 @@
 import tkinter as tk
-  
 import sys
 import trace
 import os
@@ -12,29 +11,8 @@ from parsing import Parser
 from threading import Thread
 from tkinter import *
 from multiprocessing import Process
-
 import pathlib
 
-
-
-# Variables globales
-
-window = tk.Tk()
-window.title('BioInfo')
-window.geometry('1200x700')
-
-nouveaux = []
-modifies = []
-inchanges = []
-
-nouveauxGlobal = []
-modifiesGlobal = []
-inchangesGlobal = []
-
-# ----------------------------------------------------       AFFICHAGE DE L'ARBORESCENCE        ------------------------------------------------------------------------------------- # 
-
-m1 = PanedWindow(window)
-m1.pack(fill=BOTH, expand=1)
 
 class thread_with_trace(Thread):
   def __init__(self, *args, **keywords):
@@ -66,16 +44,11 @@ class thread_with_trace(Thread):
   def kill(self):
     self.killed = True
 
-frame_arbo=ttk.Frame(m1,width=100,height=300, relief=SUNKEN)
-frame_arbo.pack()
-
 
 def createData():
     if (not path.exists("./Data")):
         os.mkdir("./Data") 
 
-
-liste = []
 
 def traverse_dir(parent,path):
     global nouveauxGlobal
@@ -99,27 +72,6 @@ def traverse_dir(parent,path):
             traverse_dir(id,full_path)
             
 
-
-tv=ttk.Treeview(frame_arbo,show='tree')
-ybar=tk.Scrollbar(frame_arbo,orient=tk.VERTICAL,command=tv.yview)
-tv.configure(yscroll=ybar.set)
-createData()
-directory='Data'
-tv.heading('#0',text='Dir：'+directory,anchor='w')
-mypath=os.path.abspath(directory)
-chunks = mypath.split('Data')
-new = "Data/" + chunks[1]
-node=tv.insert('','end',text=new,open=True)
-traverse_dir(node,mypath)
-ybar.pack(side=tk.RIGHT,fill=tk.Y)
-tv.pack(fill=BOTH, expand=True)
-frame_arbo.pack(side='left')
-
-
-
-m1.add(frame_arbo)
-
-
 def update_arbo():
     tv.delete(*tv.get_children())
     createData()
@@ -132,67 +84,6 @@ def update_arbo():
     traverse_dir(node,mypath)
 
 
-# --------------------------------------------------------------         BOUTON ET CHECK BOX            --------------------------------------------------------------------- # 
-
-
-m2 = ttk.PanedWindow(m1, orient=VERTICAL)
-m1.add(m2)
-fram2=ttk.Frame(m2,width=800,height=800, relief=SUNKEN)  
-fram2.pack()
-checkEuk = tk.IntVar()
-checkPlasmid = tk.IntVar()
-checkProk = tk.IntVar()
-checkVirus = tk.IntVar()
-checkSupprime = tk.IntVar()
-
-cEuk = tk.Checkbutton(fram2, text='Eukaryotes',variable=checkEuk)
-cEuk.pack(anchor = "w", side="top")
-
-
-cPlasmid = tk.Checkbutton(fram2, text='Plasmids',variable=checkPlasmid)
-cPlasmid.pack(anchor = "w", side="top")
-
-
-cProk = tk.Checkbutton(fram2, text='Prokaryotes',variable=checkProk)
-cProk.pack(anchor = "w", side="top")
-
-
-cVirus = tk.Checkbutton(fram2, text='Viruses',variable=checkVirus)
-cVirus.pack(anchor = "w", side="top")
-
-
-cSupprime = tk.Checkbutton(fram2, text='Suppression des NC n\'ayant plus de CDS',variable=checkSupprime)
-cSupprime.pack(anchor = "w", side="top")
-
-
-
-m2.add(fram2)
-
-# --------------------------------------------------------------      AFFICHAGE DE TEXTE         --------------------------------------------------------------------- # 
-
-
-
-fram3=ttk.Frame(m2, width=400,  height=400, relief=SUNKEN)
-fram3.pack()
-configfile = Text(fram3, wrap=WORD, width=45, height= 20)
-# configfile.configure(state='disabled')
-configfile.pack(fill=BOTH, expand=True)
-
-m2.add(fram3)
-
-c = [0,0,0,0]
-fileToParse = []
-
-stop_thread = False
-t1 = None
-
-parser = Parser([])
-
-
-# --------------------------------------------------------------     FONCTIONS         --------------------------------------------------------------------- # 
-
-
-# def parsing(fileToParse):
 def parsing():
     global parser
     global nouveauxGlobal
@@ -247,9 +138,6 @@ def parsing():
         update_arbo()
         window.update_idletasks()
 
-
-p1 = Process(target=parsing, args=())
-# p1 = Process(target=parsing, args=(fileToParse,))
 
 def ParseData():
     majFilesToParse(1)
@@ -333,54 +221,6 @@ def majFilesToParse(bouton):
 
 
 
-nameOrgaLabel = tk.Label(fram2)
-nameOrgaLabel.pack()
-
-parsing_button=tk.Button(fram2, text="Lancer parsing", command=ParseData,  bg='white', fg='black')
-parsing_button.pack(padx = 30, pady= 30)
-
-progress = tk.ttk.Progressbar ( fram2, style='green.Horizontal.TProgressbar', orient='horizontal', length=500, mode='determinate')
-progress.pack(padx = 40, pady = 20)
-
-pourcent = tk.Label(fram2)
-pourcent.pack()
-
-nouveauxLabel = tk.Label(fram2)
-nouveauxLabel.pack()
-
-modifiesLabel = tk.Label(fram2)
-modifiesLabel.pack()
-
-inchangesLabel = tk.Label(fram2)
-inchangesLabel.pack()
-
-supprimesLabel = tk.Label(fram2)
-supprimesLabel.pack()
-
-sansCDSLabel = tk.Label(fram2)
-sansCDSLabel.pack()
-
-
-nameOrgaLabel['text'] = "En attente du lancement du parsing\n\n"
-pourcent['text'] = str(parser.nc_treat) + "/" + str(parser.nc_to_treat)
-nouveauxLabel['text'] = "Nombre de nouveaux NC : " + str(parser.nc_nouveaux)
-modifiesLabel['text'] = "Nombre de NC modifiés : " + str(parser.nc_modifies)
-inchangesLabel['text'] = "Nombre de NC non modifiés : " + str(parser.nc_inchanges)
-supprimesLabel['text'] = "Nombre de NC deja parsés n'ayant plus de CDS : " + str(parser.nc_supprimes)
-sansCDSLabel['text'] = "Nombre de NC sans CDS : " + str(parser.nc_sans_cds)
-
-stop_button=tk.Button(fram2, text="Arreter parsing", command=StopParsing, bg='white', fg='black', state='disabled')
-stop_button.pack(padx=30, pady=10)
-
-reprendre_button=tk.Button(fram2, text="Reprendre parsing", command=ReprendreParsing, bg='white', fg='black', state='disabled')
-reprendre_button.pack(padx=30, pady=5)
-
-
-
-# --------------------------------------------------------------    TRAITEMENT ET  AFFICHAGE DE L'ARBORESCENCE        --------------------------------------------------------------------- # 
-
-savechemin = ''
-
 def OnDoubleClick(event):
     
     item = tv.identify("item", event.x, event.y)
@@ -414,9 +254,170 @@ def OnDoubleClick(event):
                  f.close()
 
 
-tv.bind('<Double-1>', OnDoubleClick)
 
 
-print("Lancement de l'interface")
-print("------------------------")
-window.mainloop()
+# ----------------------------------------------------      MAIN       ------------------------------------------------------------------------------------- #
+
+if __name__ == "__main__":
+
+    window = tk.Tk()
+    window.title('BioInfo')
+    window.geometry('1200x700')
+
+    nouveaux = []
+    modifies = []
+    inchanges = []
+
+    nouveauxGlobal = []
+    modifiesGlobal = []
+    inchangesGlobal = []
+
+    # ----------------------------------------------------       AFFICHAGE DE L'ARBORESCENCE        ------------------------------------------------------------------------------------- #
+
+    m1 = PanedWindow(window)
+    m1.pack(fill=BOTH, expand=1)
+
+
+    frame_arbo = ttk.Frame(m1, width=100, height=300, relief=SUNKEN)
+    frame_arbo.pack()
+
+    liste = []
+
+    tv = ttk.Treeview(frame_arbo, show='tree')
+    ybar = tk.Scrollbar(frame_arbo, orient=tk.VERTICAL, command=tv.yview)
+    tv.configure(yscroll=ybar.set)
+    createData()
+    directory = 'Data'
+    tv.heading('#0', text='Dir：'+directory, anchor='w')
+    mypath = os.path.abspath(directory)
+    chunks = mypath.split('Data')
+    new = "Data/" + chunks[1]
+    node = tv.insert('', 'end', text=new, open=True)
+    traverse_dir(node, mypath)
+    ybar.pack(side=tk.RIGHT, fill=tk.Y)
+    tv.pack(fill=BOTH, expand=True)
+    frame_arbo.pack(side='left')
+
+
+    m1.add(frame_arbo)
+
+
+    m2 = ttk.PanedWindow(m1, orient=VERTICAL)
+    m1.add(m2)
+    fram2 = ttk.Frame(m2, width=800, height=800, relief=SUNKEN)
+    fram2.pack()
+    checkEuk = tk.IntVar()
+    checkPlasmid = tk.IntVar()
+    checkProk = tk.IntVar()
+    checkVirus = tk.IntVar()
+    checkSupprime = tk.IntVar()
+
+    cEuk = tk.Checkbutton(fram2, text='Eukaryotes', variable=checkEuk)
+    cEuk.pack(anchor="w", side="top")
+
+
+    cPlasmid = tk.Checkbutton(fram2, text='Plasmids', variable=checkPlasmid)
+    cPlasmid.pack(anchor="w", side="top")
+
+
+    cProk = tk.Checkbutton(fram2, text='Prokaryotes', variable=checkProk)
+    cProk.pack(anchor="w", side="top")
+
+
+    cVirus = tk.Checkbutton(fram2, text='Viruses', variable=checkVirus)
+    cVirus.pack(anchor="w", side="top")
+
+
+    cSupprime = tk.Checkbutton(
+        fram2, text='Suppression des NC n\'ayant plus de CDS', variable=checkSupprime)
+    cSupprime.pack(anchor="w", side="top")
+
+
+    m2.add(fram2)
+
+    # --------------------------------------------------------------      AFFICHAGE DE TEXTE         --------------------------------------------------------------------- #
+
+
+    fram3 = ttk.Frame(m2, width=400,  height=400, relief=SUNKEN)
+    fram3.pack()
+    configfile = Text(fram3, wrap=WORD, width=45, height=20)
+    # configfile.configure(state='disabled')
+    configfile.pack(fill=BOTH, expand=True)
+
+    m2.add(fram3)
+
+    c = [0, 0, 0, 0]
+    fileToParse = []
+
+    stop_thread = False
+    t1 = None
+
+    parser = Parser([])
+
+
+    # --------------------------------------------------------------     FONCTIONS         --------------------------------------------------------------------- #
+
+
+    p1 = Process(target=parsing, args=())
+
+
+    nameOrgaLabel = tk.Label(fram2)
+    nameOrgaLabel.pack()
+
+    parsing_button = tk.Button(
+        fram2, text="Lancer parsing", command=ParseData,  bg='white', fg='black')
+    parsing_button.pack(padx=30, pady=30)
+
+    progress = tk.ttk.Progressbar(fram2, style='green.Horizontal.TProgressbar',
+                                orient='horizontal', length=500, mode='determinate')
+    progress.pack(padx=40, pady=20)
+
+    pourcent = tk.Label(fram2)
+    pourcent.pack()
+
+    nouveauxLabel = tk.Label(fram2)
+    nouveauxLabel.pack()
+
+    modifiesLabel = tk.Label(fram2)
+    modifiesLabel.pack()
+
+    inchangesLabel = tk.Label(fram2)
+    inchangesLabel.pack()
+
+    supprimesLabel = tk.Label(fram2)
+    supprimesLabel.pack()
+
+    sansCDSLabel = tk.Label(fram2)
+    sansCDSLabel.pack()
+
+
+    nameOrgaLabel['text'] = "En attente du lancement du parsing\n\n"
+    pourcent['text'] = str(parser.nc_treat) + "/" + str(parser.nc_to_treat)
+    nouveauxLabel['text'] = "Nombre de nouveaux NC : " + str(parser.nc_nouveaux)
+    modifiesLabel['text'] = "Nombre de NC modifiés : " + str(parser.nc_modifies)
+    inchangesLabel['text'] = "Nombre de NC non modifiés : " + \
+        str(parser.nc_inchanges)
+    supprimesLabel['text'] = "Nombre de NC deja parsés n'ayant plus de CDS : " + \
+        str(parser.nc_supprimes)
+    sansCDSLabel['text'] = "Nombre de NC sans CDS : " + str(parser.nc_sans_cds)
+
+    stop_button = tk.Button(fram2, text="Arreter parsing",
+                            command=StopParsing, bg='white', fg='black', state='disabled')
+    stop_button.pack(padx=30, pady=10)
+
+    reprendre_button = tk.Button(fram2, text="Reprendre parsing",
+                                command=ReprendreParsing, bg='white', fg='black', state='disabled')
+    reprendre_button.pack(padx=30, pady=5)
+
+
+    # --------------------------------------------------------------    TRAITEMENT ET  AFFICHAGE DE L'ARBORESCENCE        --------------------------------------------------------------------- #
+
+    savechemin = ''
+
+
+    tv.bind('<Double-1>', OnDoubleClick)
+
+
+    print("Lancement de l'interface")
+    print("------------------------")
+    window.mainloop()
