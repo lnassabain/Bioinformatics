@@ -251,6 +251,7 @@ def OnDoubleClick(event):
             configfile.delete("1.0","end")
             with open(savechemin, 'r') as f:
                  configfile.insert(INSERT, f.read())
+                 configfile.bind("<Key>", lambda e: "break")
                  f.close()
 
 
