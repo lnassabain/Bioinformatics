@@ -69,7 +69,7 @@ class Parser:
         nc_pattern = 'NC_[0-9]*\.1'
         prefix = "./Data/" + famille
 
-        f = open(famille + ".txt")
+        f = open("./Datamaj/" + famille + ".txt")
 
         if not os.path.isdir(prefix):
             os.mkdir(prefix)
