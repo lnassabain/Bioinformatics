@@ -12,6 +12,8 @@ from threading import Thread
 from tkinter import *
 from multiprocessing import Process
 import pathlib
+import io 
+from ftplib import FTP
 
 
 class thread_with_trace(Thread):
@@ -90,6 +92,8 @@ def parsing():
     global modifiesGlobal
     global inchangesGlobal
 
+
+
     # parser = Parser(fileToParse)
     progress['maximum'] = parser.nc_to_treat
     parsing_button[ "state" ] = "disabled"
@@ -140,10 +144,14 @@ def parsing():
 
 
 def ParseData():
+    print("Mise à jour des fichiers\n")
+
     majFilesToParse(1)
     majFilesToParse(2)
     majFilesToParse(3)
     majFilesToParse(4)
+
+    print("------------------------\n")
 
     s = Style()
     s.theme_use('clam')
@@ -194,27 +202,48 @@ def StopParsing():
 
 
 def majFilesToParse(bouton):
+
+
+    if not os.path.exists('Datamaj'):
+        os.makedirs('Datamaj')
+
+    ftp_server = FTP('ftp.ncbi.nlm.nih.gov')
+    ftp_server.connect()
+    ftp_server.login()
+ 
+
+    ftp_server.cwd('genomes/GENOME_REPORTS/')
+
+
+
     if (bouton == 1):
         if (checkEuk.get() == 1):
             c[0] = "eukaryotes"
+            ftp_server.retrbinary('RETR eukaryotes.txt' ,open('Datamaj/eukaryotes.txt',"wb").write)
         else:
             c[0] = 0
         return
     elif (bouton == 2):
         if (checkPlasmid.get() == 1):
             c[1] = "plasmids"
+            ftp_server.retrbinary('RETR plasmids.txt' ,open('Datamaj/plasmids.txt',"wb").write)
+
         else:
             c[1] = 0
         return
     elif (bouton == 3):
         if (checkProk.get() == 1):
             c[2] = "prokaryotes"
+            ftp_server.retrbinary('RETR prokaryotes.txt' ,open('Datamaj/prokaryotes.txt',"wb").write)
+
         else:
             c[2] = 0
         return
     elif (bouton == 4):
         if (checkVirus.get() == 1):
             c[3] = "viruses"
+            ftp_server.retrbinary('RETR viruses.txt' ,open('Datamaj/viruses.txt',"wb").write)
+
         else:
             c[3] = 0
         return
