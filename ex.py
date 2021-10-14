@@ -144,7 +144,7 @@ def parsing():
 
 
 def ParseData():
-    print("Mise à jour des fichiers\n")
+    print("Téléchargements des fichiers\n")
 
     majFilesToParse(1)
     majFilesToParse(2)
@@ -215,35 +215,47 @@ def majFilesToParse(bouton):
     ftp_server.cwd('genomes/GENOME_REPORTS/')
 
 
-
     if (bouton == 1):
         if (checkEuk.get() == 1):
             c[0] = "eukaryotes"
-            ftp_server.retrbinary('RETR eukaryotes.txt' ,open('Datamaj/eukaryotes.txt',"wb").write)
+            try:
+                with open("Datamaj/eukaryotes.txt", "rb") as f:
+                    print("deja telechargé") 
+            except:
+                ftp_server.retrbinary('RETR eukaryotes.txt' ,open('Datamaj/eukaryotes.txt',"wb").write)
         else:
             c[0] = 0
         return
     elif (bouton == 2):
         if (checkPlasmid.get() == 1):
             c[1] = "plasmids"
-            ftp_server.retrbinary('RETR plasmids.txt' ,open('Datamaj/plasmids.txt',"wb").write)
-
+            try:
+                with open("Datamaj/plasmids.txt", "rb") as f:
+                    print("deja telechargé") 
+            except:
+                ftp_server.retrbinary('RETR plasmids.txt' ,open('Datamaj/plasmids.txt',"wb").write)
         else:
             c[1] = 0
         return
     elif (bouton == 3):
         if (checkProk.get() == 1):
             c[2] = "prokaryotes"
-            ftp_server.retrbinary('RETR prokaryotes.txt' ,open('Datamaj/prokaryotes.txt',"wb").write)
-
+            try:
+                with open("Datamaj/prokaryotes.txt", "rb") as f:
+                    print("deja telechargé") 
+            except:
+                ftp_server.retrbinary('RETR prokaryotes.txt' ,open('Datamaj/prokaryotes.txt',"wb").write)
         else:
             c[2] = 0
         return
     elif (bouton == 4):
         if (checkVirus.get() == 1):
             c[3] = "viruses"
-            ftp_server.retrbinary('RETR viruses.txt' ,open('Datamaj/viruses.txt',"wb").write)
-
+            try:
+                with open("Datamaj/viruses.txt", "rb") as f:
+                    print("deja telechargé") 
+            except:
+                ftp_server.retrbinary('RETR viruses.txt' ,open('Datamaj/viruses.txt',"wb").write)
         else:
             c[3] = 0
         return
@@ -358,9 +370,9 @@ if __name__ == "__main__":
     cVirus.pack(anchor="w", side="top")
 
 
-    cSupprime = tk.Checkbutton(
-        fram2, text='Suppression des NC n\'ayant plus de CDS', variable=checkSupprime)
-    cSupprime.pack(anchor="w", side="top")
+    #cSupprime = tk.Checkbutton(
+    #    fram2, text='Suppression des NC n\'ayant plus de CDS', variable=checkSupprime)
+    #cSupprime.pack(anchor="w", side="top")
 
 
     m2.add(fram2)
